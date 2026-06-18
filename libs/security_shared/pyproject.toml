@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "security-shared"
+version = "1.0.0"
+description = "Shared library for clan-security-be microservices"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.111.0",
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.3.0",
+    "sqlalchemy>=2.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "cryptography>=42.0.0",
+    "starlette>=0.37.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["security_shared*"]

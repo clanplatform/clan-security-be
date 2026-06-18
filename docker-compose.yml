@@ -1,0 +1,314 @@
+version: "3.9"
+
+networks:
+  clan-security-net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+
+x-service-defaults: &service-defaults
+  restart: unless-stopped
+  networks:
+    - clan-security-net
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+x-common-env: &common-env
+  DATABASE_URL: postgresql+asyncpg://clan_security:password@postgres:5432/clan_security
+  REDIS_URL: redis://redis:6379/0
+  SECRET_KEY: ${SECRET_KEY:-dev-secret-change-in-production}
+  JWT_ALGORITHM: HS256
+  JWT_EXPIRY_MINUTES: 30
+  ENVIRONMENT: ${ENVIRONMENT:-development}
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: clan_security
+      POSTGRES_USER: clan_security
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - clan-security-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clan_security"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - clan-security-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── compliance-and-governance ──────────────────────────────────────────────
+
+  security-audit-trail-service:
+    <<: *service-defaults
+    build: ./services/security-audit-trail-service
+    ports: ["8001:8001"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8001
+
+  security-gdpr-compliance-service:
+    <<: *service-defaults
+    build: ./services/security-gdpr-compliance-service
+    ports: ["8002:8002"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8002
+
+  security-pci-compliance-service:
+    <<: *service-defaults
+    build: ./services/security-pci-compliance-service
+    ports: ["8003:8003"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8003
+
+  security-policy-management-service:
+    <<: *service-defaults
+    build: ./services/security-policy-management-service
+    ports: ["8004:8004"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8004
+
+  security-sox-compliance-service:
+    <<: *service-defaults
+    build: ./services/security-sox-compliance-service
+    ports: ["8005:8005"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8005
+
+  # ── data-security ─────────────────────────────────────────────────────────
+
+  security-backup-encryption-service:
+    <<: *service-defaults
+    build: ./services/security-backup-encryption-service
+    ports: ["8006:8006"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8006
+
+  security-data-classification-service:
+    <<: *service-defaults
+    build: ./services/security-data-classification-service
+    ports: ["8007:8007"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8007
+
+  security-data-loss-prevention-service:
+    <<: *service-defaults
+    build: ./services/security-data-loss-prevention-service
+    ports: ["8008:8008"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8008
+
+  security-data-masking-service:
+    <<: *service-defaults
+    build: ./services/security-data-masking-service
+    ports: ["8009:8009"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8009
+
+  # ── encryption-and-keys ───────────────────────────────────────────────────
+
+  security-certificate-management-service:
+    <<: *service-defaults
+    build: ./services/security-certificate-management-service
+    ports: ["8010:8010"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8010
+
+  security-encryption-service:
+    <<: *service-defaults
+    build: ./services/security-encryption-service
+    ports: ["8011:8011"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8011
+
+  security-hsm-service:
+    <<: *service-defaults
+    build: ./services/security-hsm-service
+    ports: ["8012:8012"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8012
+
+  security-key-management-service:
+    <<: *service-defaults
+    build: ./services/security-key-management-service
+    ports: ["8013:8013"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8013
+
+  # ── identity-and-access ───────────────────────────────────────────────────
+
+  security-access-control-service:
+    <<: *service-defaults
+    build: ./services/security-access-control-service
+    ports: ["8014:8014"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8014
+
+  security-identity-verification-service:
+    <<: *service-defaults
+    build: ./services/security-identity-verification-service
+    ports: ["8015:8015"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8015
+
+  security-privilege-escalation-service:
+    <<: *service-defaults
+    build: ./services/security-privilege-escalation-service
+    ports: ["8016:8016"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8016
+
+  security-session-security-service:
+    <<: *service-defaults
+    build: ./services/security-session-security-service
+    ports: ["8017:8017"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8017
+
+  # ── monitoring-and-audit ──────────────────────────────────────────────────
+
+  security-audit-service:
+    <<: *service-defaults
+    build: ./services/security-audit-service
+    ports: ["8018:8018"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8018
+
+  security-forensics-service:
+    <<: *service-defaults
+    build: ./services/security-forensics-service
+    ports: ["8019:8019"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8019
+
+  security-log-analysis-service:
+    <<: *service-defaults
+    build: ./services/security-log-analysis-service
+    ports: ["8020:8020"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8020
+
+  security-monitoring-service:
+    <<: *service-defaults
+    build: ./services/security-monitoring-service
+    ports: ["8021:8021"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8021
+
+  # ── network-security ──────────────────────────────────────────────────────
+
+  security-ddos-protection-service:
+    <<: *service-defaults
+    build: ./services/security-ddos-protection-service
+    ports: ["8022:8022"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8022
+
+  security-firewall-management-service:
+    <<: *service-defaults
+    build: ./services/security-firewall-management-service
+    ports: ["8023:8023"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8023
+
+  security-intrusion-detection-service:
+    <<: *service-defaults
+    build: ./services/security-intrusion-detection-service
+    ports: ["8024:8024"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8024
+
+  security-network-monitoring-service:
+    <<: *service-defaults
+    build: ./services/security-network-monitoring-service
+    ports: ["8025:8025"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8025
+
+  # ── threat-management ─────────────────────────────────────────────────────
+
+  security-incident-response-service:
+    <<: *service-defaults
+    build: ./services/security-incident-response-service
+    ports: ["8026:8026"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8026
+
+  security-penetration-testing-service:
+    <<: *service-defaults
+    build: ./services/security-penetration-testing-service
+    ports: ["8027:8027"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8027
+
+  security-threat-detection-service:
+    <<: *service-defaults
+    build: ./services/security-threat-detection-service
+    ports: ["8028:8028"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8028
+
+  security-threat-intelligence-service:
+    <<: *service-defaults
+    build: ./services/security-threat-intelligence-service
+    ports: ["8029:8029"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8029
+
+  security-vulnerability-scanning-service:
+    <<: *service-defaults
+    build: ./services/security-vulnerability-scanning-service
+    ports: ["8030:8030"]
+    environment:
+      <<: *common-env
+      SERVICE_PORT: 8030

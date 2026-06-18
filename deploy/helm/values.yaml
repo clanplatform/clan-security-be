@@ -1,0 +1,55 @@
+global:
+  image:
+    registry: ghcr.io/clan-security
+    tag: latest
+    pullPolicy: IfNotPresent
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+services:
+  auditTrail:        { enabled: true, port: 8001, name: security-audit-trail-service }
+  gdprCompliance:    { enabled: true, port: 8002, name: security-gdpr-compliance-service }
+  pciCompliance:     { enabled: true, port: 8003, name: security-pci-compliance-service }
+  policyManagement:  { enabled: true, port: 8004, name: security-policy-management-service }
+  soxCompliance:     { enabled: true, port: 8005, name: security-sox-compliance-service }
+  backupEncryption:  { enabled: true, port: 8006, name: security-backup-encryption-service }
+  dataClassification:{ enabled: true, port: 8007, name: security-data-classification-service }
+  dataLossPrevention:{ enabled: true, port: 8008, name: security-data-loss-prevention-service }
+  dataMasking:       { enabled: true, port: 8009, name: security-data-masking-service }
+  certManagement:    { enabled: true, port: 8010, name: security-certificate-management-service }
+  encryption:        { enabled: true, port: 8011, name: security-encryption-service }
+  hsm:               { enabled: true, port: 8012, name: security-hsm-service }
+  keyManagement:     { enabled: true, port: 8013, name: security-key-management-service }
+  accessControl:     { enabled: true, port: 8014, name: security-access-control-service }
+  identityVerif:     { enabled: true, port: 8015, name: security-identity-verification-service }
+  privilegeEsc:      { enabled: true, port: 8016, name: security-privilege-escalation-service }
+  sessionSecurity:   { enabled: true, port: 8017, name: security-session-security-service }
+  audit:             { enabled: true, port: 8018, name: security-audit-service }
+  forensics:         { enabled: true, port: 8019, name: security-forensics-service }
+  logAnalysis:       { enabled: true, port: 8020, name: security-log-analysis-service }
+  monitoring:        { enabled: true, port: 8021, name: security-monitoring-service }
+  ddosProtection:    { enabled: true, port: 8022, name: security-ddos-protection-service }
+  firewallMgmt:      { enabled: true, port: 8023, name: security-firewall-management-service }
+  ids:               { enabled: true, port: 8024, name: security-intrusion-detection-service }
+  netMonitoring:     { enabled: true, port: 8025, name: security-network-monitoring-service }
+  incidentResponse:  { enabled: true, port: 8026, name: security-incident-response-service }
+  pentest:           { enabled: true, port: 8027, name: security-penetration-testing-service }
+  threatDetection:   { enabled: true, port: 8028, name: security-threat-detection-service }
+  threatIntel:       { enabled: true, port: 8029, name: security-threat-intelligence-service }
+  vulnScanning:      { enabled: true, port: 8030, name: security-vulnerability-scanning-service }
+
+postgres:
+  enabled: true
+  image: postgres:16-alpine
+  database: clan_security
+  user: clan_security
+
+redis:
+  enabled: true
+  image: redis:7-alpine

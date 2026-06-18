@@ -1,0 +1,13 @@
+apiVersion: v2
+name: clan-security-be
+description: Clan Security Backend Helm Chart
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - security
+  - microservices
+  - fastapi
+maintainers:
+  - name: Clan Platform
+    email: clan.platform@gmail.com

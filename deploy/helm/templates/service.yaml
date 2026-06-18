@@ -1,0 +1,18 @@
+{{- range $key, $svc := .Values.services }}
+{{- if $svc.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $svc.name }}
+  namespace: clan-security
+spec:
+  selector:
+    app: {{ $svc.name }}
+  ports:
+    - protocol: TCP
+      port: {{ $svc.port }}
+      targetPort: {{ $svc.port }}
+  type: ClusterIP
+{{- end }}
+{{- end }}

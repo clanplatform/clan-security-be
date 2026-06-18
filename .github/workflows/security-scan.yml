@@ -1,0 +1,30 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  push:
+    branches: [main]
+
+jobs:
+  dependency-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install safety bandit
+      - name: Safety check
+        run: |
+          for svc in services/*/; do
+            echo "=== Scanning $svc ==="
+            safety check -r $svc/requirements.txt || true
+          done
+      - name: Bandit SAST scan
+        run: bandit -r services/ -ll -f json -o bandit-report.json || true
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: bandit-report.json

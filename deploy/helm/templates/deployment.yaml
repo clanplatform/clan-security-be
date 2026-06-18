@@ -1,0 +1,47 @@
+{{- range $key, $svc := .Values.services }}
+{{- if $svc.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $svc.name }}
+  namespace: clan-security
+  labels:
+    app: {{ $svc.name }}
+spec:
+  replicas: {{ $.Values.global.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ $svc.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ $svc.name }}
+    spec:
+      containers:
+        - name: {{ $svc.name }}
+          image: "{{ $.Values.global.image.registry }}/{{ $svc.name }}:{{ $.Values.global.image.tag }}"
+          imagePullPolicy: {{ $.Values.global.image.pullPolicy }}
+          ports:
+            - containerPort: {{ $svc.port }}
+          envFrom:
+            - configMapRef:
+                name: clan-security-config
+            - secretRef:
+                name: clan-security-secrets
+          resources:
+            {{- toYaml $.Values.global.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: {{ $svc.port }}
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: {{ $svc.port }}
+            initialDelaySeconds: 10
+            periodSeconds: 5
+{{- end }}
+{{- end }}
