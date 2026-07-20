@@ -34,7 +34,7 @@ services:
       POSTGRES_USER: clan_security
       POSTGRES_PASSWORD: password
     ports:
-      - "5432:5432"
+      - "5438:5432"   # host port 5438: 5432 is taken by platform-domain-be postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -48,7 +48,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6386:6379"   # host port 6386: keeps one-redis-port-per-repo (6380-6385 taken)
     volumes:
       - redis_data:/data
     networks:

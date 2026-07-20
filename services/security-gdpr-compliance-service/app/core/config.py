@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     SERVICE_PORT: int = 8002
     ENVIRONMENT: str = "development"
     DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost/db"
-    REDIS_URL: str = "redis://localhost:6379/0"
+    REDIS_URL: str = "redis://localhost:6386/0"
     SECRET_KEY: str = "change-me"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRY_MINUTES: int = 30
