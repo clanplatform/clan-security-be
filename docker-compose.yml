@@ -5,7 +5,6 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
   redis_data:
 
 x-service-defaults: &service-defaults
@@ -13,13 +12,15 @@ x-service-defaults: &service-defaults
   networks:
     - clan-security-net
   depends_on:
-    postgres:
-      condition: service_healthy
     redis:
       condition: service_healthy
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
 
 x-common-env: &common-env
-  DATABASE_URL: postgresql+asyncpg://clan_security:password@postgres:5432/clan_security
+  # No local postgres container — all repos share one Postgres server
+  # (admin-service-postgres, published on host port 5432, db clan_platform).
+  DATABASE_URL: postgresql+asyncpg://postgres:root@host.docker.internal:5432/clan_platform
   REDIS_URL: redis://redis:6379/0
   SECRET_KEY: ${SECRET_KEY:-dev-secret-change-in-production}
   JWT_ALGORITHM: HS256
@@ -27,24 +28,6 @@ x-common-env: &common-env
   ENVIRONMENT: ${ENVIRONMENT:-development}
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_DB: clan_security
-      POSTGRES_USER: clan_security
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5438:5432"   # host port 5438: 5432 is taken by platform-domain-be postgres
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - clan-security-net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U clan_security"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   redis:
     image: redis:7-alpine
     ports:

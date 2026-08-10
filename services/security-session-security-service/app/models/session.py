@@ -10,7 +10,7 @@ class Base(DeclarativeBase):
 
 
 class Session(Base):
-    __tablename__ = "sessions"
+    __tablename__ = "security_sessions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id = Column(String(255), nullable=False, index=True)
